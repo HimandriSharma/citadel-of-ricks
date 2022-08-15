@@ -5,7 +5,7 @@ import { fetchData } from "./redux";
 function Character({ fetchData, apiData }) {
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
   return apiData.loading ? (
     <h2>Loading</h2>
   ) : apiData.error ? (
