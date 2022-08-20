@@ -1,15 +1,24 @@
-import { Provider } from 'react-redux';
-import './App.css';
-import Character from './Character';
-import store from './redux/store';
+import React from "react";
+import "./App.css";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import { Routes, Route } from "react-router-dom";
+import Detail from "./components/Detail";
+import Navbar from "./components/Navbar";
+import Character from "./components/Character";
 
 function App() {
   return (
-    <Provider store={store}>
     <div className="App">
-      <Character/>
+      <Provider store={store}>
+        <Navbar />
+        <Routes>
+          <Route exact path="/" element={<Character />} />
+          <Route exact path="/characters" element={<Character />} />
+          <Route exact path="/characters/:id" element={<Detail />} />
+        </Routes>
+      </Provider>
     </div>
-    </Provider>
   );
 }
 
