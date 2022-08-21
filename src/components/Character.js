@@ -1,6 +1,5 @@
-import React from "react";
-import { PropTypes } from "prop-types";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { connect } from "react-redux";
 import {
   Card,
   Row,
@@ -13,22 +12,43 @@ import {
   message,
   BackTop,
   Button,
+  Pagination,
 } from "antd";
 import classnames from "classnames";
 import { SearchOutlined } from "@ant-design/icons";
 import "antd/dist/antd.min.css";
 import backendService from "../api/BackendService";
 import { Link } from "react-router-dom";
+import { setValue } from "../redux";
+import store from "../redux/store";
 
 const { Option } = Select;
 const { Sider } = Layout;
 
-const Character = () => {
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height,
+  };
+}
+const Character = ({ count }) => {
   const [characters, setCharacters] = useState([]);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("");
   const [gender, setGender] = useState("");
-  const [broken,setBroken] = useState(true);
+  const [broken, setBroken] = useState(true);
+  const [pages, setPages] = useState();
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const handleStatus = (val) => {
     setStatus(val);
   };
@@ -38,16 +58,22 @@ const Character = () => {
   const handleInput = (val) => {
     setName(val);
   };
-  const handleBreak= (val) => {
+  const handleBreak = (val) => {
     setBroken(val);
   };
   useEffect(() => {
-    backendService.getCharacters(1)
-    .then((res)=>{console.log(res);setCharacters(res.data.results)})
-    .catch((err)=>console.log(err))
-  }, []);
+    localStorage.setItem("page", count.page);
+    backendService
+      .getCharacters(count.page)
+      .then((res) => {
+        console.log(res);
+        setPages(res.data && res.data.info.pages);
+        setCharacters(res.data && res.data.results);
+      })
+      .catch((err) => console.log(err));
+  }, [count]);
   useEffect(() => {
-    (name!=="" | status!=="" | gender!=="") &&
+    (name !== "") | (status !== "") | (gender !== "") &&
       backendService
         .getFilterCharacter({
           name: name ? name : "",
@@ -73,7 +99,9 @@ const Character = () => {
           position: "fixed",
           height: "100%",
         }}
-        onBreakpoint = {(broken)=>{handleBreak(broken)}}
+        onBreakpoint={(broken) => {
+          handleBreak(broken);
+        }}
       >
         <Menu theme="dark">
           <Tooltip title="Press ENTER after typing name." placement="rightTop">
@@ -123,11 +151,13 @@ const Character = () => {
 
       <div
         className={classnames({
-            'sider-open' : !broken,
-            'sider-close' : broken
+          "sider-open": !broken,
+          "sider-close": broken,
+          "small-screen": (windowDimensions.width<=650)===true
         })}
       >
-        <Row gutter={16}>
+        {console.log(windowDimensions.width<=650)}
+        <Row type="flex">
           {characters.map &&
             characters.map((item) => (
               <Col xs={24} sm={12} md={8} key={item.id}>
@@ -187,16 +217,33 @@ const Character = () => {
                 color: "#fff",
                 textAlign: "center",
                 fontSize: 14,
-                position:"fixed",
-                left:"15rem"
+                position: "fixed",
+                left: "15rem",
               }}
             >
               Go Top
             </div>
           </BackTop>
         </Row>
+        {(name === "") & (status === "") & (gender === "") ? (
+          <Pagination
+            simple
+            current={count.page}
+            total={pages * 10}
+            onChange={(page) => store.dispatch(setValue(page))}
+          />
+        ) : (
+          <div />
+        )}
       </div>
     </Layout>
   );
 };
-export default Character;
+
+const mapStateToProps = (state) => {
+  return {
+    count: state.counter,
+  };
+};
+
+export default connect(mapStateToProps)(Character);
