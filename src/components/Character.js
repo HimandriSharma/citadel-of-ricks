@@ -66,7 +66,6 @@ const Character = ({ count }) => {
     backendService
       .getCharacters(count.page)
       .then((res) => {
-        console.log(res);
         setPages(res.data && res.data.info.pages);
         setCharacters(res.data && res.data.results);
       })
@@ -156,7 +155,6 @@ const Character = ({ count }) => {
           "small-screen": (windowDimensions.width<=650)===true
         })}
       >
-        {console.log(windowDimensions.width<=650)}
         <Row type="flex">
           {characters.map &&
             characters.map((item) => (
@@ -174,7 +172,7 @@ const Character = ({ count }) => {
                   bordered={true}
                   cover={
                     <img
-                      alt="example"
+                      alt="character image"
                       src={item.image}
                       style={{ padding: "10px" }}
                     />
@@ -231,6 +229,7 @@ const Character = ({ count }) => {
             current={count.page}
             total={pages * 10}
             onChange={(page) => store.dispatch(setValue(page))}
+            style={{padding:"1rem"}}
           />
         ) : (
           <div />
