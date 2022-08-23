@@ -1,6 +1,7 @@
 {
   "name": "citadel-of-ricks",
   "version": "0.1.0",
+  "homepage": "https://himandrisharma.github.io/ricknmorty",
   "private": true,
   "dependencies": {
     "@redux-devtools/extension": "^3.2.3",
@@ -11,6 +12,7 @@
     "antd": "^4.22.6",
     "axios": "^0.27.2",
     "classnames": "^2.3.1",
+    "gh-pages": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
@@ -25,7 +27,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
